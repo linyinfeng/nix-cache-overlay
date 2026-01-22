@@ -168,7 +168,7 @@ async fn check_upstream(
     {
         let uri = request.uri_mut();
         let mut uri_parts = uri.clone().into_parts();
-        uri_parts.path_and_query = Some(PathAndQuery::from_str(key)?);
+        uri_parts.path_and_query = Some(PathAndQuery::from_str(&format!("/{key}"))?);
         *uri = Uri::from_parts(uri_parts)?;
     }
     modify_request_to_endpoint(&mut request, upstream)?;
