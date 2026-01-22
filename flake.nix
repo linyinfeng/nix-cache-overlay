@@ -30,7 +30,10 @@
           inputs.treefmt-nix.flakeModule
         ];
         flake = {
-          nixosModules.nix-cache-overlay = ./nixos/module.nix;
+          nixosModules = {
+            nix-cache-overlay = ./nixos/module.nix;
+            default = self.nixosModules.nix-cache-overlay;
+          };
         };
         perSystem =
           {
