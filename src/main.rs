@@ -1,7 +1,5 @@
 use std::{
-    iter,
-    sync::{Arc, LazyLock},
-    time::SystemTime,
+    iter, str::FromStr, sync::{Arc, LazyLock}, time::SystemTime
 };
 
 use anyhow::Context;
@@ -18,7 +16,7 @@ use axum::{
 };
 use clap::Parser;
 use constant_time_eq::constant_time_eq;
-use http::{HeaderName, HeaderValue, Method, Request, Response, request};
+use http::{HeaderName, HeaderValue, Method, Request, Response, request, uri::PathAndQuery};
 use http_body_util::BodyExt;
 use hyper::{
     StatusCode, Uri,
@@ -165,9 +163,16 @@ async fn check_upstream(
     parts: request::Parts,
     key: &str,
 ) -> Result<UpstreamState, Error> {
-    tracing::info!("Checking upstream: {}", key);
     let mut request = Request::from_parts(parts, Body::empty());
+    // Rewrite path to the key
+    {
+        let uri = request.uri_mut();
+        let mut uri_parts = uri.clone().into_parts();
+        uri_parts.path_and_query = Some(PathAndQuery::from_str(key)?);
+        *uri = Uri::from_parts(uri_parts)?;
+    }
     modify_request_to_endpoint(&mut request, upstream)?;
+    tracing::info!("Checking upstream: {}", request.uri());
     tracing::trace!("Request to upstream: {:?}", request);
     let response = ctx.http_client.request(request).await?;
     tracing::trace!("Response from upstream: {:?}", response);

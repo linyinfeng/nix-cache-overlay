@@ -19,6 +19,8 @@ pub enum Error {
     Signing(#[from] aws_sigv4::http_request::SigningError),
     #[error("invalid uri parts: {0}")]
     InvalidUriParts(#[from] http::uri::InvalidUriParts),
+    #[error("invalid uri: {0}")]
+    InvalidUri(#[from] http::uri::InvalidUri),
 
     // Client side errors
     #[error("token mismatch")]
@@ -57,6 +59,7 @@ impl Error {
             Error::SigningParamsBuild(_) => StatusCode::INTERNAL_SERVER_ERROR,
             Error::Signing(_) => StatusCode::INTERNAL_SERVER_ERROR,
             Error::InvalidUriParts(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            Error::InvalidUri(_) => StatusCode::INTERNAL_SERVER_ERROR,
             // Client side errors
             Error::TokenMismatch => StatusCode::FORBIDDEN,
             Error::NoAuthorization => StatusCode::FORBIDDEN,
