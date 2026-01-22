@@ -165,7 +165,7 @@ async fn check_upstream(
     parts: request::Parts,
     key: &str,
 ) -> Result<UpstreamState, Error> {
-    tracing::info!("Checking upstream for key: {}", key);
+    tracing::info!("Checking upstream: {}", key);
     let mut request = Request::from_parts(parts, Body::empty());
     modify_request_to_endpoint(&mut request, upstream)?;
     tracing::trace!("Request to upstream: {:?}", request);
@@ -184,7 +184,8 @@ async fn proxy(
     ctx: Arc<ServerContext>,
     mut request: Request<Body>,
 ) -> Result<Response<Body>, Error> {
-    tracing::info!("Proxying request: {} {}", request.method(), request.uri());
+    // Typical methods are GET, HEAD, PUT, so pad method to 4 chars
+    tracing::info!("Forwarding request: {:4} {}", request.method(), request.uri());
     verify_request(ctx.clone(), &request)?;
     modify_request_to_endpoint(&mut request, &ctx.options.endpoint)?;
     sign_request(ctx.clone(), &mut request)?;
