@@ -13,6 +13,8 @@ pub enum Error {
     HyperClient(#[from] hyper_util::client::legacy::Error),
     #[error("invalid header value: {0}")]
     InvalidHeaderValue(#[from] http::header::InvalidHeaderValue),
+    #[error("failed to build signing parameters: {0}")]
+    SigningParamsBuild(#[from] aws_sigv4::sign::v4::signing_params::BuildError),
     #[error("signing error: {0}")]
     Signing(#[from] aws_sigv4::http_request::SigningError),
     #[error("invalid uri parts: {0}")]
@@ -52,6 +54,7 @@ impl Error {
             Error::Http(_) => StatusCode::INTERNAL_SERVER_ERROR,
             Error::HyperClient(_) => StatusCode::INTERNAL_SERVER_ERROR,
             Error::InvalidHeaderValue(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            Error::SigningParamsBuild(_) => StatusCode::INTERNAL_SERVER_ERROR,
             Error::Signing(_) => StatusCode::INTERNAL_SERVER_ERROR,
             Error::InvalidUriParts(_) => StatusCode::INTERNAL_SERVER_ERROR,
             // Client side errors

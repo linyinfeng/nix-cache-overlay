@@ -241,8 +241,7 @@ fn sign_request(ctx: Arc<ServerContext>, request: &mut Request<Body>) -> Result<
         .name("s3")
         .time(SystemTime::now())
         .settings(signing_settings)
-        .build()
-        .unwrap()
+        .build()?
         .into();
 
     // Convert the HTTP request into a signable request
