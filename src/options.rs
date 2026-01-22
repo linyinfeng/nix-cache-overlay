@@ -16,6 +16,6 @@ pub struct Options {
     pub upstreams: Vec<Uri>,
     #[arg(long, help = "S3 endpoint URL")]
     pub endpoint: Uri,
-    #[arg(long, help = "S3 region")]
+    #[arg(long, help = "S3 region", default_value = "us-east-1")]
     pub region: String,
 }
