@@ -1,5 +1,8 @@
 use std::{
-    iter, str::FromStr, sync::{Arc, LazyLock}, time::SystemTime
+    iter,
+    str::FromStr,
+    sync::{Arc, LazyLock},
+    time::SystemTime,
 };
 
 use anyhow::Context;
@@ -129,7 +132,9 @@ async fn handler(
     mut request: Request<Body>,
 ) -> Result<Response<Body>, Error> {
     tracing::debug!("Handling request: {:?}", request);
-    if let Method::GET | Method::HEAD = method {
+    if let Method::GET | Method::HEAD = method
+        && key.ends_with(".narinfo")
+    {
         // Simply ignore body for upstream check
         let (parts, body) = request.into_parts();
         match check_upstreams(ctx.clone(), &parts, &key).await? {
