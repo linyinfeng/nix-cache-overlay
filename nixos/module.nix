@@ -52,6 +52,7 @@ in
         ${cfg.package}/bin/nix-cache-overlay \
           --listen "${cfg.listen}" \
           --endpoint "${cfg.endpoint}" \
+          --logging-method=journald \
           ${lib.escapeShellArgs cfg.extraArgs}
       '';
       serviceConfig = {

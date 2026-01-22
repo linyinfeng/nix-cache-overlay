@@ -30,8 +30,12 @@ use hyper_util::{
     rt::TokioExecutor,
 };
 use regex::Regex;
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
-use crate::{error::Error, options::Options};
+use crate::{
+    error::Error,
+    options::{LoggingMethod, Options},
+};
 
 mod error;
 mod options;
@@ -49,8 +53,7 @@ pub struct ServerContext {
 }
 
 impl ServerContext {
-    pub async fn new() -> anyhow::Result<Self> {
-        let options = Options::parse();
+    pub async fn new(options: Options) -> anyhow::Result<Self> {
         // Validate options
         for uri in options
             .upstreams
@@ -100,9 +103,9 @@ enum UpstreamState {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    tracing_subscriber::fmt::init();
-    let ctx = Arc::new(ServerContext::new().await?);
-
+    let options = Options::parse();
+    init_tracing_subscriber(&options)?;
+    let ctx = Arc::new(ServerContext::new(options).await?);
     let app = Router::new()
         .route("/", get(welcome))
         .route("/{bucket}/{*key}", any(handler))
@@ -265,5 +268,18 @@ fn sign_request(ctx: Arc<ServerContext>, request: &mut Request<Body>) -> Result<
         aws_sigv4::http_request::sign(signable_request, &signing_params)?.into_parts();
     signing_instructions.apply_to_request_http1x(request);
 
+    Ok(())
+}
+
+fn init_tracing_subscriber(options: &Options) -> anyhow::Result<()> {
+    let registry =
+        tracing_subscriber::registry().with(tracing_subscriber::EnvFilter::from_default_env());
+    match options.logging_method {
+        LoggingMethod::Console => registry.with(tracing_subscriber::fmt::layer()).try_init()?,
+        LoggingMethod::Journald => {
+            let journald_layer = tracing_journald::layer()?;
+            registry.with(journald_layer).try_init()?;
+        }
+    }
     Ok(())
 }

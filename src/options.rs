@@ -1,6 +1,6 @@
 use std::net::SocketAddr;
 
-use clap::Parser;
+use clap::{Parser, ValueEnum};
 use http::Uri;
 
 #[derive(Clone, Debug, Parser)]
@@ -18,4 +18,12 @@ pub struct Options {
     pub endpoint: Uri,
     #[arg(long, help = "S3 region", default_value = "us-east-1")]
     pub region: String,
+    #[arg(long, help = "logging method", default_value = "console")]
+    pub logging_method: LoggingMethod,
+}
+
+#[derive(Clone, Debug, Copy, ValueEnum)]
+pub enum LoggingMethod {
+    Console,
+    Journald,
 }

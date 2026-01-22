@@ -16,7 +16,8 @@ aws-config = { version = "*", features = ["behavior-version-latest"] }
 aws-sigv4 = "*"
 aws-credential-types = "*"
 tracing = "*"
-tracing-subscriber = "*"
+tracing-subscriber = { version = "*", features = ["env-filter"]}
+tracing-journald = "*"
 tokio = { version = "*", features = ["rt-multi-thread"] }
 clap = { version = "*", features = ["derive"] }
 anyhow = "*"
