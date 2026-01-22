@@ -185,7 +185,11 @@ async fn proxy(
     mut request: Request<Body>,
 ) -> Result<Response<Body>, Error> {
     // Typical methods are GET, HEAD, PUT, so pad method to 4 chars
-    tracing::info!("Forwarding request: {:4} {}", request.method(), request.uri());
+    tracing::info!(
+        "Forwarding request: {:4} {}",
+        request.method(),
+        request.uri()
+    );
     verify_request(ctx.clone(), &request)?;
     modify_request_to_endpoint(&mut request, &ctx.options.endpoint)?;
     sign_request(ctx.clone(), &mut request)?;
